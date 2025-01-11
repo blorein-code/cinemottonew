@@ -3,6 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FaXTwitter, FaFacebookF, FaInstagram } from 'react-icons/fa6';
+import { Dancing_Script } from 'next/font/google';
+
+const dancingScript = Dancing_Script({ 
+  subsets: ['latin'] 
+});
 
 export default function CertificateViewPage() {
   const searchParams = useSearchParams();
@@ -151,7 +156,7 @@ export default function CertificateViewPage() {
                   </div>
                 </div>
 
-                <h1 className="text-5xl font-bold text-gray-800 mb-3 italic">
+                <h1 className={`text-6xl font-bold text-gray-800 mb-3 ${dancingScript.className}`}>
                   Başarı Sertifikası
                 </h1>
                 <div className="w-40 h-px mx-auto bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
@@ -159,7 +164,7 @@ export default function CertificateViewPage() {
 
               {/* İçerik */}
               <div className="space-y-4 my-10">
-                <p className="text-4xl font-semibold text-gray-800 my-3">
+                <p className={`text-6xl text-gray-800 my-3 ${dancingScript.className} tracking-wide bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 text-transparent bg-clip-text`}>
                   {name} {surname}
                 </p>
                 
