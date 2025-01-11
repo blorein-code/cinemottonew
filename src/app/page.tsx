@@ -1,101 +1,160 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
+interface Question {
+  id: string;
+  question_text: string;
+  options: string[];
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: string;
+  point: number;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
+  const [counters, setCounters] = useState({ participants: 0, certificates: 0 });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  useEffect(() => {
+    const fetchCounters = async () => {
+      try {
+        const response = await fetch('/api/counters');
+        if (!response.ok) throw new Error('Failed to fetch counters');
+        const data = await response.json();
+        setCounters(data);
+      } catch (error) {
+        console.error('Error fetching counters:', error);
+      }
+    };
+
+    fetchCounters();
+    // Her 30 saniyede bir sayaçları güncelle
+    const interval = setInterval(fetchCounters, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleStart = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Katılımcı sayacını artır
+      await fetch('/api/counters/increment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'participants' })
+      });
+      
+      // Quiz sayfasına yönlendir
+      router.push('/quiz');
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen relative">
+      <Image
+        src="/images/blue.jpg"
+        alt="Background"
+        fill
+        className="object-cover z-0"
+        priority
+        quality={100}
+      />
+
+      {/* Info Button */}
+      <button
+        onClick={() => setShowInfo(!showInfo)}
+        className="absolute top-6 right-6 z-10 bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+        aria-label="Bilgi"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-6 h-6 text-gray-900"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+          />
+        </svg>
+      </button>
+
+      {/* Info Panel */}
+      {showInfo && (
+        <div className="absolute top-20 right-6 z-10 w-80 bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/20">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">Başarı Koşulları</h3>
+          <ul className="space-y-2 text-gray-700">
+            <li className="flex items-start gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mt-0.5 text-emerald-500">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>75 puan ve üzeri almalısınız</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mt-0.5 text-emerald-500">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>En az 7 soruyu doğru cevaplamalısınız</span>
+            </li>
+          </ul>
+        </div>
+      )}
+
+      <main className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
+        <div className="max-w-3xl text-center mb-12">
+          <div className="backdrop-blur-md bg-white/80 rounded-2xl border border-white/20 shadow-xl p-8">
+            <p className="text-lg md:text-xl text-gray-900 leading-relaxed">
+              Filmlerin en ikonik repliklerini hatırlıyor musunuz? Unutulmaz
+              cümleleri hangi filmle eşleştirebileceğinizi tahmin edin ve film
+              bilginizi test edin! Eğer sınavı başarılı bir şekilde
+              tamamlarsanız, size özel bir sertifika ile ödüllendirileceksiniz.
+              Sadece en iyi film tutkunları bu testi geçebilir! Ne kadar film
+              bilgisine sahipsiniz? Hadi başlayın ve keşfedin!
+            </p>
+          </div>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-4 bg-red-500/10 backdrop-blur-sm rounded-xl border border-red-500/20">
+            <p className="text-white">{error}</p>
+          </div>
+        )}
+
+        <div className="max-w-3xl mx-auto">
+          <button 
+            onClick={handleStart}
+            className="mt-6 w-full bg-gradient-to-r from-blue-500/50 via-cyan-400/50 to-emerald-400/50 text-white px-6 py-3 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {loading ? 'Yükleniyor...' : 'Hadi Başlayalım'}
+          </button>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      {/* Sayaçlar */}
+      <div className="absolute bottom-8 right-8 flex gap-4">
+        <div className="backdrop-blur-md bg-white/80 rounded-xl border border-white/20 shadow-lg px-4 py-2 text-center">
+          <div className="text-2xl font-bold text-gray-900">{counters.participants}</div>
+          <div className="text-xs text-gray-600">Katılımcı</div>
+        </div>
+        <div className="backdrop-blur-md bg-white/80 rounded-xl border border-white/20 shadow-lg px-4 py-2 text-center">
+          <div className="text-2xl font-bold text-gray-900">{counters.certificates}</div>
+          <div className="text-xs text-gray-600">Sertifika</div>
+        </div>
+      </div>
     </div>
   );
 }
