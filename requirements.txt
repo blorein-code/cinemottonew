@@ -1,0 +1,34 @@
+# Dependencies
+mongodb==6.12.0
+mongoose==8.9.4
+next==15.1.4
+react==19.0.0
+react-dom==19.0.0
+react-icons==5.4.0
+
+# Development Dependencies
+@eslint/eslintrc==3.0.0
+@types/node==20.0.0
+@types/react==19.0.0
+@types/react-dom==19.0.0
+eslint==9.0.0
+eslint-config-next==15.1.4
+postcss==8.0.0
+tailwindcss==3.4.1
+typescript==5.0.0
+
+# Font Dependencies
+@next/font
+next-font/google
+
+# Additional Notes
+# Bu paketleri yüklemek için:
+# npm install [paket-adı]@[versiyon]
+# Örnek: npm install mongodb@6.12.0
+
+# Development paketlerini yüklemek için:
+# npm install --save-dev [paket-adı]@[versiyon]
+# Örnek: npm install --save-dev typescript@5.0.0
+
+# Tüm paketleri tek seferde yüklemek için:
+# npm install 
