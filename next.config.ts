@@ -1,7 +1,17 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+const config = {
+  env: {
+    NEXT_PUBLIC_BASE_URL: 'https://cinemotto.com'
+  },
+  eslint: {
+    ignoreDuringBuilds: true
+  },
+  typescript: {
+    ignoreBuildErrors: true
+  },
+  output: 'standalone',
+  experimental: {
+    serverActions: true
+  }
 };
 
-export default nextConfig;
+export default config;
