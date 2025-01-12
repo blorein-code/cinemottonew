@@ -8,47 +8,63 @@ import { useRouter } from 'next/navigation';
 export default function CertificatePage() {
   const searchParams = useSearchParams();
   const score = searchParams.get('score');
-  const correctAnswers = searchParams.get('correct');
-  
+  const correct = searchParams.get('correct');
+
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
-    // Sertifika görüntüleme sayfasına yönlendir
-    router.push(`/certificate/view?name=${encodeURIComponent(name)}&surname=${encodeURIComponent(surname)}&score=${score}&correct=${correctAnswers}`);
-  };
-
-  const handleGenerateCertificate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
     try {
-      setGenerating(true);
-      setError('');
-
-      // Sertifika sayacını artır
-      await fetch('/api/counters/increment', {
+      const response = await fetch('/api/certificates/save', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'certificates' })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          surname,
+          score,
+          correct,
+        }),
       });
 
-      // Sertifika görüntüleme sayfasına yönlendir
-      router.push(`/certificate/view?name=${encodeURIComponent(name)}&surname=${encodeURIComponent(surname)}&score=${score}&correct=${correctAnswers}`);
-    } catch (error) {
-      console.error('Error generating certificate:', error);
-      setError('Sertifika oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.');
+      const data = await response.json();
+
+      if (data.success) {
+        router.push(data.redirectUrl);
+      } else {
+        throw new Error(data.error || 'Bir hata oluştu');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Bir hata oluştu');
     } finally {
-      setGenerating(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (!score || !correct) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Geçersiz Sertifika İsteği</h1>
+          <button
+            onClick={() => router.push('/')}
+            className="px-6 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            Ana Sayfaya Dön
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen relative">
@@ -70,7 +86,7 @@ export default function CertificatePage() {
                   Tebrikler! 🎉
                 </h1>
                 <p className="text-gray-600">
-                  {correctAnswers} doğru cevap ile {score} puan aldınız.
+                  {correct} doğru cevap ile {score} puan aldınız.
                 </p>
                 <p className="text-gray-600 mt-2">
                   Sertifikanızı Almak için son bir adım kaldı!
@@ -107,6 +123,12 @@ export default function CertificatePage() {
                     placeholder="Soyadınızı girin"
                   />
                 </div>
+
+                {error && (
+                  <div className="text-red-500 text-sm text-center">
+                    {error}
+                  </div>
+                )}
 
                 <button
                   type="submit"

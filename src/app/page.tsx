@@ -3,6 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { Dancing_Script } from 'next/font/google';
+
+const dancingScript = Dancing_Script({
+  subsets: ['latin']
+});
 
 interface Question {
   id: string;
@@ -115,7 +120,19 @@ export default function Home() {
       )}
 
       <main className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
-        <div className="max-w-3xl text-center mb-12">
+        {/* Logo */}
+        <div className="w-auto h-16 relative inline-flex items-center gap-2 mb-8">
+          <div className="relative w-16 h-16">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400 rounded-full opacity-10 animate-pulse"></div>
+            <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+              <span className="text-2xl">🎬</span>
+            </div>
+          </div>
+          <span className={`text-3xl font-bold text-gray-800 ${dancingScript.className}`}>CineMotto</span>
+        </div>
+
+        {/* Description Container */}
+        <div className="max-w-3xl w-full text-center mb-12">
           <div className="backdrop-blur-md bg-white/80 rounded-2xl border border-white/20 shadow-xl p-8">
             <p className="text-lg md:text-xl text-gray-900 leading-relaxed">
               Filmlerin en ikonik repliklerini hatırlıyor musunuz? Unutulmaz
