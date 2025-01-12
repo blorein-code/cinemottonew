@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Dancing_Script } from 'next/font/google';
+import GoogleAd from '@/components/GoogleAd';
 
 const dancingScript = Dancing_Script({
   subsets: ['latin']
@@ -76,50 +77,22 @@ export default function Home() {
         quality={100}
       />
 
-      {/* Info Button */}
-      <button
-        onClick={() => setShowInfo(!showInfo)}
-        className="absolute top-6 right-6 z-10 bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-        aria-label="Bilgi"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-6 h-6 text-gray-900"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-          />
-        </svg>
-      </button>
-
-      {/* Info Panel */}
-      {showInfo && (
-        <div className="absolute top-20 right-6 z-10 w-80 bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/20">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Başarı Koşulları</h3>
-          <ul className="space-y-2 text-gray-700">
-            <li className="flex items-start gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mt-0.5 text-emerald-500">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>75 puan ve üzeri almalısınız</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mt-0.5 text-emerald-500">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>En az 7 soruyu doğru cevaplamalısınız</span>
-            </li>
-          </ul>
+      {/* Sayaçlar - Sol Üst Köşe */}
+      <div className="absolute top-6 left-6 z-20 flex gap-4">
+        <div className="backdrop-blur-md bg-white/80 rounded-xl border border-white/20 shadow-lg px-4 py-2 text-center">
+          <div className="text-2xl font-bold text-gray-900">{counters.participants}</div>
+          <div className="text-xs text-gray-600">Katılımcı</div>
         </div>
-      )}
+        <div className="backdrop-blur-md bg-white/80 rounded-xl border border-white/20 shadow-lg px-4 py-2 text-center">
+          <div className="text-2xl font-bold text-gray-900">{counters.certificates}</div>
+          <div className="text-xs text-gray-600">Sertifika</div>
+        </div>
+      </div>
 
       <main className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen relative z-10">
+        {/* Mobil için üst boşluk */}
+        <div className="h-16 md:hidden"></div>
+        
         {/* Logo */}
         <div className="w-auto h-16 relative inline-flex items-center gap-2 mb-8">
           <div className="relative w-16 h-16">
@@ -159,19 +132,27 @@ export default function Home() {
             {loading ? 'Yükleniyor...' : 'Hadi Başlayalım'}
           </button>
         </div>
-      </main>
 
-      {/* Sayaçlar */}
-      <div className="absolute bottom-8 right-8 flex gap-4">
-        <div className="backdrop-blur-md bg-white/80 rounded-xl border border-white/20 shadow-lg px-4 py-2 text-center">
-          <div className="text-2xl font-bold text-gray-900">{counters.participants}</div>
-          <div className="text-xs text-gray-600">Katılımcı</div>
+        {/* Reklam Container */}
+        <div className="w-full max-w-4xl mx-auto mt-12">
+          <div className="flex justify-center">
+            <div className="hidden md:block">
+              {/* Desktop Reklam */}
+              <GoogleAd 
+                adSlot="3335682767"
+                style={{ display: 'inline-block', width: '728px', height: '90px' }}
+              />
+            </div>
+            <div className="md:hidden">
+              {/* Mobil Reklam */}
+              <GoogleAd 
+                adSlot="3335682767"
+                style={{ display: 'inline-block', width: '320px', height: '100px' }}
+              />
+            </div>
+          </div>
         </div>
-        <div className="backdrop-blur-md bg-white/80 rounded-xl border border-white/20 shadow-lg px-4 py-2 text-center">
-          <div className="text-2xl font-bold text-gray-900">{counters.certificates}</div>
-          <div className="text-xs text-gray-600">Sertifika</div>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

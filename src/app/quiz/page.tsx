@@ -39,6 +39,8 @@ export default function QuizPage() {
           throw new Error('Sorular yüklenirken bir hata oluştu');
         }
         const data = await response.json();
+        console.log('Gelen sorular:', data.questions);
+        console.log('İlk sorunun puanı:', data.questions[0]?.point);
         setQuestions(data.questions);
 
         // Increment participants counter if not already done
@@ -46,7 +48,7 @@ export default function QuizPage() {
           await fetch('/api/counters/increment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ counterType: 'participants' })
+            body: JSON.stringify({ type: 'participants' })
           });
           setHasIncrementedCounter(true);
         }
@@ -70,7 +72,10 @@ export default function QuizPage() {
         if (prevTime <= 1) {
           clearInterval(timer);
           // Süre bittiğinde sonuç sayfasına yönlendir
-          console.log('Süre bitti! Toplam puan:', score);
+          const finalScore = score;
+          const finalCorrectCount = correctAnswersCount;
+          console.log('Süre bitti! Toplam puan:', finalScore);
+          router.push(`/result?reason=timeout&score=${finalScore}&correct=${finalCorrectCount}`);
           return 0;
         }
         return prevTime - 1;
@@ -78,13 +83,15 @@ export default function QuizPage() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [loading, score]);
+  }, [loading, score, correctAnswersCount, router]);
 
   useEffect(() => {
     if (!loading && timeLeft === 0) {
-      router.push(`/result?reason=timeout&score=${score}&correct=${correctAnswersCount}`);
+      const finalScore = score;
+      const finalCorrectCount = correctAnswersCount;
+      router.push(`/result?reason=timeout&score=${finalScore}&correct=${finalCorrectCount}`);
     }
-  }, [timeLeft, loading]);
+  }, [timeLeft, loading, score, correctAnswersCount, router]);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -106,21 +113,38 @@ export default function QuizPage() {
     setIsCorrect(isAnswerCorrect);
     setShowResult(true);
 
-    // Doğru cevap verdiyse puanı ve doğru sayısını güncelle
-    let newScore = score;
-    let newCorrectCount = correctAnswersCount;
+    // Mevcut puanı ve doğru sayısını al
+    const currentScore = score;
+    const currentCorrectCount = correctAnswersCount;
     
-    if (isAnswerCorrect) {
-      newScore = score + currentQuestion.point;
-      newCorrectCount = correctAnswersCount + 1;
-      setScore(newScore);
-      setCorrectAnswersCount(newCorrectCount);
-    }
+    // Debug için log ekle
+    console.log('Current Question:', currentQuestion);
+    console.log('Current Question Point:', currentQuestion.point);
+    console.log('Is Answer Correct:', isAnswerCorrect);
+    console.log('Current Score:', currentScore);
+    console.log('Current Correct Count:', currentCorrectCount);
+    
+    // Yeni puanı ve doğru sayısını hesapla
+    const questionPoint = Number(currentQuestion.point) || 10; // Eğer point undefined ise 10 puan ver
+    const newScore = isAnswerCorrect ? currentScore + questionPoint : currentScore;
+    const newCorrectCount = isAnswerCorrect ? currentCorrectCount + 1 : currentCorrectCount;
+
+    // Debug için log ekle
+    console.log('Question Point:', questionPoint);
+    console.log('New Score:', newScore);
+    console.log('New Correct Count:', newCorrectCount);
+
+    // State'leri güncelle
+    setScore(newScore);
+    setCorrectAnswersCount(newCorrectCount);
 
     // 0.5 saniye sonra sonraki soruya geç veya testi bitir
     setTimeout(() => {
       if (currentQuestionIndex === questions.length - 1) {
         // Quiz bitti, sonuçları kontrol et
+        console.log('Final Score:', newScore);
+        console.log('Final Correct Count:', newCorrectCount);
+        
         if (newScore >= 75 || newCorrectCount >= 7) {
           router.push(`/certificate?score=${newScore}&correct=${newCorrectCount}`);
         } else {

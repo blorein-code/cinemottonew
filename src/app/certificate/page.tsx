@@ -4,11 +4,40 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+import { Dancing_Script } from 'next/font/google';
+import GoogleAd from '@/components/GoogleAd';
+
+const dancingScript = Dancing_Script({
+  subsets: ['latin']
+});
 
 export default function CertificatePage() {
   const searchParams = useSearchParams();
-  const score = searchParams.get('score');
-  const correct = searchParams.get('correct');
+  const score = Number(searchParams.get('score'));
+  const correct = Number(searchParams.get('correct'));
+
+  // Puanı kontrol et
+  const finalScore = score > 100 ? 100 : score;
+
+  // 7 doğru veya 85 puan şartını kontrol et
+  if (correct < 7 && finalScore < 85) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Sertifika Almaya Hak Kazanamadınız</h1>
+          <p className="text-gray-600 mb-6">
+            Sertifika alabilmek için en az 7 doğru cevap veya 85 puan almanız gerekmektedir.
+          </p>
+          <button
+            onClick={() => router.push('/')}
+            className="px-6 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+          >
+            Ana Sayfaya Dön
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
@@ -31,7 +60,7 @@ export default function CertificatePage() {
         body: JSON.stringify({
           name,
           surname,
-          score,
+          score: finalScore,
           correct,
         }),
       });
@@ -50,22 +79,6 @@ export default function CertificatePage() {
     }
   };
 
-  if (!score || !correct) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Geçersiz Sertifika İsteği</h1>
-          <button
-            onClick={() => router.push('/')}
-            className="px-6 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
-          >
-            Ana Sayfaya Dön
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen relative">
       <Image
@@ -77,7 +90,8 @@ export default function CertificatePage() {
         quality={100}
       />
 
-      <main className="relative h-screen flex items-center justify-center">
+      <main className="relative min-h-screen flex flex-col justify-between py-8">
+        {/* Form Container */}
         <div className="container mx-auto px-4">
           <div className="max-w-md mx-auto">
             <div className="backdrop-blur-md bg-white/80 rounded-2xl border border-white/20 shadow-xl p-8">
@@ -85,12 +99,14 @@ export default function CertificatePage() {
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">
                   Tebrikler! 🎉
                 </h1>
-                <p className="text-gray-600">
-                  {correct} doğru cevap ile {score} puan aldınız.
-                </p>
                 <p className="text-gray-600 mt-2">
                   Sertifikanızı Almak için son bir adım kaldı!
                 </p>
+                {(name || surname) && (
+                  <p className={`${dancingScript.className} text-4xl mt-4 tracking-wide bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 text-transparent bg-clip-text`}>
+                    {name} {surname}
+                  </p>
+                )}
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -138,6 +154,28 @@ export default function CertificatePage() {
                   {isSubmitting ? 'Sertifika Oluşturuluyor...' : 'Sertifika Oluştur'}
                 </button>
               </form>
+            </div>
+          </div>
+        </div>
+
+        {/* Reklam Container */}
+        <div className="container mx-auto px-4 mt-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="backdrop-blur-md bg-white/80 rounded-2xl border border-white/20 shadow-xl p-4 flex justify-center">
+              <div className="hidden md:block">
+                {/* Desktop Reklam */}
+                <GoogleAd 
+                  adSlot="3335682767"
+                  style={{ display: 'inline-block', width: '728px', height: '90px' }}
+                />
+              </div>
+              <div className="md:hidden">
+                {/* Mobil Reklam */}
+                <GoogleAd 
+                  adSlot="3335682767"
+                  style={{ display: 'inline-block', width: '320px', height: '100px' }}
+                />
+              </div>
             </div>
           </div>
         </div>

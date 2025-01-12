@@ -7,6 +7,10 @@ export async function POST(request: Request) {
   try {
     const { name, surname, score, correct } = await request.json();
 
+    // Puanı kontrol et
+    const finalScore = Number(score) > 100 ? 100 : Number(score);
+    const correctCount = Number(correct);
+
     // MongoDB'ye bağlan
     await client.connect();
     const db = client.db("QualifiedAudience");
@@ -16,9 +20,18 @@ export async function POST(request: Request) {
     const result = await certificatesCollection.insertOne({
       name,
       surname,
-      score,
-      correct,
+      score: finalScore,
+      correct: correctCount,
       createdAt: new Date()
+    });
+
+    // Sertifika sayacını artır
+    await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/counters/increment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ type: 'certificates' })
     });
 
     return NextResponse.json({ 

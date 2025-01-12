@@ -191,7 +191,7 @@ export default function CertificateViewPage() {
 
               {/* İçerik */}
               <div className="space-y-4 my-10">
-                <p className={`text-6xl text-gray-800 my-3 ${dancingScript.className} tracking-wide bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 text-transparent bg-clip-text`}>
+                <p className={`${dancingScript.className} text-6xl tracking-wide bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-500 text-transparent bg-clip-text`}>
                   {name} {surname}
                 </p>
                 
