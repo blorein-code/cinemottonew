@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { FaXTwitter, FaFacebookF, FaInstagram } from 'react-icons/fa6';
 import { Dancing_Script } from 'next/font/google';
@@ -9,7 +9,7 @@ const dancingScript = Dancing_Script({
   subsets: ['latin'] 
 });
 
-export default function CertificateViewPage() {
+function CertificateContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [hasIncrementedCounter, setHasIncrementedCounter] = useState(false);
@@ -256,5 +256,13 @@ export default function CertificateViewPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CertificateViewPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CertificateContent />
+    </Suspense>
   );
 } 
