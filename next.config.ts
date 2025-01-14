@@ -10,7 +10,9 @@ const config = {
   },
   output: 'standalone',
   experimental: {
-    serverActions: true
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'cinemotto.com']
+    }
   }
 };
 

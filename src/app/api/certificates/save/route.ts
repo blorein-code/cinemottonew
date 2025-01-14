@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 import { NextResponse } from 'next/server';
 
-const client = new MongoClient("mongodb+srv://berketopcu:KU6RSxg0uj8OTOZk@cluster0.dzmi8.mongodb.net/");
+const client = new MongoClient(process.env.MONGODB_URI || "mongodb+srv://berketopcu:KU6RSxg0uj8OTOZk@cluster0.dzmi8.mongodb.net/");
 
 export async function POST(request: Request) {
   try {
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
     // MongoDB'ye bağlan
     await client.connect();
-    const db = client.db("QualifiedAudience");
+    const db = client.db(process.env.MONGODB_DB || "QualifiedAudience");
     const certificatesCollection = db.collection("certificates");
 
     // Sertifika bilgilerini kaydet
